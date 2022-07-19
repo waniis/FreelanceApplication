@@ -1,5 +1,6 @@
 require("dotenv").config();
 const express = require("express");
+const connectToDB = require("./database/db");
 
 process.on("uncaughtException", (error) => {
     console.log("Uncaught Exception..... 💣 🔥 stopping the server....");
@@ -10,6 +11,8 @@ process.on("uncaughtException", (error) => {
 
 //Initialize the app
 const app = express();
+
+connectToDB();
 
 app.use(express.json());
 
