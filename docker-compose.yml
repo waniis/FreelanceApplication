@@ -1,11 +1,11 @@
 version: "3.9"
 services:
-  freelance-app:
+  freelance-app-backend:
     restart: always
     build:
       context: ./server
       dockerfile: Dockerfile.dev
-    container_name: freelance_app_backend
+    container_name: freelance-app-backend
     volumes:
       - /app/node_modules
       - ./server:/app
@@ -17,7 +17,7 @@ services:
       NODE_ENV: ${NODE_ENV}
       MONGO_URI: mongodb://${MONGO_ROOT_USERNAME}:${MONGO_ROOT_PASSWORD}@mongodb
     networks:
-      - freelance-app-backend
+      - freelance-app
   mongodb:
     image: mongo
     restart: always
@@ -29,7 +29,7 @@ services:
     volumes:
      - mongodb-data:/data/db
     networks:
-     - freelance-app-backend
+     - freelance-app
       # mongo-express should only be used privately for development purposes.
       # It helps us interact with a mongoDB database using our browser
   mongo-express:
@@ -47,7 +47,7 @@ services:
       volumes:
          - mongodb-data
       networks:
-         - freelance-app-backend
+         - freelance-app
   client:
       restart: always
       build:
@@ -60,12 +60,24 @@ services:
       ports:
          - 3000:3000
       depends_on:
-         - freelance-app
-      networks:
          - freelance-app-backend
+      networks:
+         - freelance-app
+  nginx:
+      restart: always
+      depends_on:
+         - freelance-app-backend
+         - client
+      build:
+         context: ./nginx
+         dockerfile: Dockerfile.dev
+      ports:
+         - 8080:80
+      networks:
+         - freelance-app
 
 networks:
-   freelance-app-backend:
+   freelance-app:
       driver: bridge
 
 volumes:
